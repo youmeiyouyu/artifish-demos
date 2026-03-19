@@ -16,7 +16,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
 
       - name: Generate filename
         id: filename
@@ -32,23 +31,22 @@ jobs:
         run: |
           echo '${{ github.event.client_payload.html }}' > "${{ steps.filename.outputs.filename }}"
 
-      - name: Configure git
+      - name: Commit and push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "action@artfish.cn"
           git config --local user.name "ArtFish Action"
-          git config --local credential.helper "store"
-          echo "https://${{ secrets.GITHUB_TOKEN }}:@github.com" > ~/.git-credentials
-
-      - name: Commit and push
-        run: |
           git add .
           git commit -m "feat: add ${{ steps.filename.outputs.filename }}"
-          git push https://github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+          git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} HEAD:main
 
       - name: Wait for Cloudflare deployment
         run: sleep 25
 
       - name: Create Supabase record
+        env:
+          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           curl -s -X POST "${{ env.SUPABASE_URL }}/rest/v1/works" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
