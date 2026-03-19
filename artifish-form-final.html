@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户注册 - ArtFish 组件库</title>
+  <style>
+    /* ===== 组件库 呼吸风格 规范 ===== */
+    :root {
+      --primary: #FF7C3C;
+      --primary-dark: #FF5E1A;
+      --primary-gradient: linear-gradient(104deg, #FF7C3C 0%, #FF5E1A 100%);
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e8e8e8;
+      --gray-300: #d9d9d9;
+      --gray-400: #bfbfbf;
+      --gray-500: #8c8c8c;
+      --gray-600: #595959;
+      --gray-700: #404040;
+      --gray-800: #262626;
+      --radius: 8px;
+      --radius-sm: 4px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--gray-100); color: var(--gray-800); font-size: 14px; line-height: 1.5; }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    
+    /* Header */
+    .page-header { background: var(--primary-gradient); color: white; padding: 24px 32px; border-radius: var(--radius); margin-bottom: 24px; text-align: center; }
+    .page-header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+    .page-header p { font-size: 14px; opacity: 0.9; }
+    
+    /* Card */
+    .card { background: white; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-100); }
+    .card-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .card-title::before { content: ''; width: 4px; height: 16px; background: var(--primary-gradient); border-radius: 2px; }
+    
+    /* Form */
+    .form-body { padding: 24px 32px; }
+    .form-section { margin-bottom: 28px; }
+    .form-section:last-child { margin-bottom: 0; }
+    .form-section-title { font-size: 14px; font-weight: 600; color: var(--gray-700); margin-bottom: 16px; padding-left: 12px; border-left: 3px solid var(--primary); }
+    
+    /* Grid - 4 columns */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+    
+    /* Form Group */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--gray-700); margin-bottom: 8px; }
+    .form-label .required { color: #ff4d4f; margin-left: 2px; }
+    .form-label .optional { color: var(--gray-400); font-weight: 400; font-size: 12px; }
+    .form-hint { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+    
+    /* Input */
+    .input { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; outline: none; transition: all 0.2s; background: white; }
+    .input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,124,60,0.1); }
+    .input::placeholder { color: var(--gray-400); }
+    .input:disabled { background: var(--gray-50); cursor: not-allowed; }
+    
+    /* Select */
+    .select { width: 100%; padding: 8px 32px 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; outline: none; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238c8c8c' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; cursor: pointer; transition: all 0.2s; }
+    .select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,124,60,0.1); }
+    
+    /* Textarea */
+    .textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; outline: none; resize: vertical; min-height: 100px; transition: all 0.2s; }
+    .textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,124,60,0.1); }
+    
+    /* Checkbox & Radio */
+    .checkbox-group, .radio-group { display: flex; flex-wrap: wrap; gap: 16px 24px; padding-top: 4px; }
+    .checkbox-item, .radio-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--gray-700); }
+    .checkbox-item input, .radio-item input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; border-radius: 4px; }
+    .radio-item input { border-radius: 50%; }
+    
+    /* Switch */
+    .switch-group { display: flex; flex-wrap: wrap; gap: 16px 32px; }
+    .switch-item { display: flex; align-items: center; gap: 10px; }
+    .switch { position: relative; width: 40px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch .slider { position: absolute; inset: 0; background: var(--gray-300); border-radius: 11px; cursor: pointer; transition: 0.3s; }
+    .switch .slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .switch input:checked + .slider { background: var(--primary); }
+    .switch input:checked + .slider::before { transform: translateX(18px); }
+    .switch-label { font-size: 14px; color: var(--gray-700); }
+    
+    /* Tag */
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 14px; background: rgba(255,124,60,0.1); color: var(--primary); }
+    .tag-orange { background: var(--primary-gradient); color: white; }
+    .tag-close { margin-left: 6px; cursor: pointer; opacity: 0.7; }
+    .tag-close:hover { opacity: 1; }
+    
+    /* Alert */
+    .alert { padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .alert-success { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+    .alert-warning { background: #fffbe6; border: 1px solid #ffe58f; color: #faad14; }
+    .alert-error { background: #fff2f0; border: 1px solid #ffccc7; color: #ff4d4f; }
+    .alert-info { background: #f0f5ff; border: 1px solid #adc6ff; color: #1890ff; }
+    
+    /* Button */
+    .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; height: 32px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--primary-gradient); color: white; }
+    .btn-primary:hover { box-shadow: 0 4px 12px rgba(255,124,60,0.4); transform: translateY(-1px); }
+    .btn-default { background: white; border: 1px solid var(--gray-300); color: var(--gray-700); }
+    .btn-default:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-text { background: transparent; color: var(--gray-600); padding: 0 12px; }
+    .btn-text:hover { color: var(--primary); }
+    .btn-lg { height: 40px; padding: 0 24px; font-size: 14px; }
+    
+    /* Divider */
+    .divider { height: 1px; background: var(--gray-100); margin: 24px 0; }
+    
+    /* Footer */
+    .form-footer { padding: 20px 32px; background: var(--gray-50); border-top: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; }
+    .footer-tip { font-size: 12px; color: var(--gray-500); }
+    
+    /* Badge */
+    .badge { display: inline-flex; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; }
+    .badge-orange { background: var(--primary-gradient); color: white; }
+    .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+    .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+    
+    /* Progress */
+    .progress-wrap { display: flex; align-items: center; gap: 10px; }
+    .progress { width: 100px; height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--primary-gradient); border-radius: 3px; }
+    .progress-text { font-size: 12px; color: var(--gray-500); min-width: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>用户注册</h1>
+      <p>加入 ArtFish 组件库，体验完整功能</p>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">基本信息</div>
+      </div>
+      <div class="form-body">
+        <!-- 4 Column Grid -->
+        <div class="grid-4">
+          <div class="form-group">
+            <label class="form-label">用户名 <span class="required">*</span></label>
+            <input type="text" class="input" placeholder="中英文字母数字">
+          </div>
+          <div class="form-group">
+            <label class="form-label">邮箱 <span class="required">*</span></label>
+            <input type="email" class="input" placeholder="example@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">密码 <span class="required">*</span></label>
+            <input type="password" class="input" placeholder="6位以上">
+          </div>
+          <div class="form-group">
+            <label class="form-label">手机号</label>
+            <input type="tel" class="input" placeholder="1开头11位">
+          </div>
+          <div class="form-group">
+            <label class="form-label">真实姓名</label>
+            <input type="text" class="input" placeholder="请输入真实姓名">
+          </div>
+          <div class="form-group">
+            <label class="form-label">年龄</label>
+            <input type="number" class="input" placeholder="18-100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">城市</label>
+            <input type="text" class="input" placeholder="北京/上海/广州">
+          </div>
+          <div class="form-group">
+            <label class="form-label">职业</label>
+            <select class="select">
+              <option value="">请选择职业</option>
+              <option>前端开发</option>
+              <option>后端开发</option>
+              <option>全栈开发</option>
+              <option>UI设计师</option>
+              <option>产品经理</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-header">
+        <div class="card-title">技能 & 偏好</div>
+      </div>
+      <div class="form-body">
+        <!-- Checkbox Group -->
+        <div class="form-group">
+          <label class="form-label">擅长技能 <span class="optional">(可多选)</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" checked> <span>React</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Vue</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Angular</span></label>
+            <label class="checkbox-item"><input type="checkbox" checked> <span>TypeScript</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Node.js</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Python</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Figma</span></label>
+            <label class="checkbox-item"><input type="checkbox"> <span>Sketch</span></label>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Selected Tags -->
+        <div class="form-group">
+          <label class="form-label">已选技能标签</label>
+          <div class="tags">
+            <span class="tag">React <span class="tag-close">×</span></span>
+            <span class="tag">TypeScript <span class="tag-close">×</span></span>
+            <span class="tag tag-orange">可合作</span>
+            <span class="badge badge-success">审核通过</span>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Radio Group + Progress -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">工作年限</label>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="exp" checked> <span>1-3年</span></label>
+              <label class="radio-item"><input type="radio" name="exp"> <span>3-5年</span></label>
+              <label class="radio-item"><input type="radio" name="exp"> <span>5年以上</span></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">资料完成度</label>
+            <div class="progress-wrap">
+              <div class="progress"><div class="progress-bar" style="width: 65%;"></div></div>
+              <span class="progress-text">65%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-header">
+        <div class="card-title">通知设置</div>
+      </div>
+      <div class="form-body">
+        <!-- Switch Group -->
+        <div class="switch-group">
+          <div class="switch-item">
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            <span class="switch-label">邮件通知</span>
+          </div>
+          <div class="switch-item">
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            <span class="switch-label">短信通知</span>
+          </div>
+          <div class="switch-item">
+            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            <span class="switch-label">营销推送</span>
+          </div>
+          <div class="switch-item">
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            <span class="switch-label">每周简报</span>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Textarea -->
+        <div class="form-group">
+          <label class="form-label">个人简介 <span class="optional">(选填)</span></label>
+          <textarea class="textarea" placeholder="介绍一下你自己..."></textarea>
+          <div class="form-hint">建议填写真实的项目经验和技术栈，有助于获得更多合作机会</div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="form-footer">
+        <div class="footer-tip">点击注册即表示同意《用户协议》和《隐私政策》</div>
+        <div class="btn-group">
+          <button class="btn btn-text">取消</button>
+          <button class="btn btn-primary btn-lg" onclick="handleSubmit()">立即注册</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function handleSubmit() {
+      const alert = document.createElement('div');
+      alert.className = 'alert alert-success';
+      alert.innerHTML = '<span>✓</span><span>注册成功！正在跳转...</span>';
+      document.querySelector('.container').prepend(alert);
+      setTimeout(() => { alert.remove(); }, 3000);
+    }
+  </script>
+</body>
+</html>
