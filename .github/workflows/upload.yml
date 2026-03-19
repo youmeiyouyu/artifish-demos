@@ -4,8 +4,12 @@ on:
   repository_dispatch:
     types: [upload]
 
+env:
+  SUPABASE_URL: https://ipohnmmfgqpaosomfscn.supabase.co
+  CF_PROJECT: artifish-demos
+
 jobs:
-  upload:
+  upload-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -21,6 +25,7 @@ jobs:
           SLUG=$(echo "$TITLE" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | head -c 50)
           FILENAME="${SLUG}-$(date +%s).html"
           echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          echo "slug=$SLUG" >> $GITHUB_OUTPUT
           echo "title=$TITLE" >> $GITHUB_OUTPUT
 
       - name: Save HTML file
@@ -33,4 +38,36 @@ jobs:
           git config --local user.name "ArtFish Action"
           git add .
           git commit -m "feat: add ${{ steps.filename.outputs.filename }}"
-          git push
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: false
+
+      - name: Wait for Cloudflare deployment
+        run: |
+          echo "Waiting for Cloudflare Pages deployment..."
+          sleep 20
+
+      - name: Create Supabase record
+        run: |
+          SLUG="${{ steps.filename.outputs.slug }}"
+          PREVIEW_URL="https://${{ env.CF_PROJECT }}.pages.dev/${SLUG}-$(date +%s)"
+          
+          curl -s -X POST "${{ env.SUPABASE_URL }}/rest/v1/works" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=representation" \
+            -d "{
+              \"title\": \"${{ steps.filename.outputs.title }}\",
+              \"description\": \"${{ github.event.client_payload.description || '' }}\",
+              \"tech_stack\": \"${{ github.event.client_payload.tech_stack || 'HTML' }}\",
+              \"demo_url\": \"https://${{ env.CF_PROJECT }}.pages.dev/${{ steps.filename.outputs.filename }}\",
+              \"code_url\": \"${{ github.event.client_payload.code_url || '' }}\",
+              \"author_name\": \"${{ github.event.client_payload.author_name }}\",
+              \"image_url\": \"https://${{ env.CF_PROJECT }}.pages.dev/${{ steps.filename.outputs.filename }}\"
+            }"
+          
+          echo "Work record created in Supabase!"
