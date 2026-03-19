@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户列表 - ArtFish 组件库</title>
+  <style>
+    :root {
+      --primary: #FF7C3C;
+      --primary-dark: #FF5E1A;
+      --primary-gradient: linear-gradient(104deg, #FF7C3C 0%, #FF5E1A 100%);
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e8e8e8;
+      --gray-300: #d9d9d9;
+      --gray-400: #bfbfbf;
+      --gray-500: #8c8c8c;
+      --gray-600: #595959;
+      --gray-700: #404040;
+      --gray-800: #262626;
+      --radius: 8px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'PingFang SC', sans-serif; background: var(--gray-100); font-size: 14px; line-height: 1.5; }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .card { background: white; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    .header { padding: 20px 24px; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .header h1::before { content: ''; width: 4px; height: 18px; background: var(--primary-gradient); border-radius: 2px; }
+    .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--primary-gradient); color: white; }
+    .btn-default { background: white; border: 1px solid var(--gray-300); color: var(--gray-700); }
+    .filter { padding: 16px 24px; background: var(--gray-50); display: flex; gap: 12px; flex-wrap: wrap; }
+    .input { padding: 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; outline: none; }
+    .input:focus { border-color: var(--primary); }
+    .select { padding: 8px 28px 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238c8c8c' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 10px center; appearance: none; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; background: var(--gray-50); font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; border-bottom: 1px solid var(--gray-100); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--gray-100); }
+    tr:hover td { background: #fff9f5; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-gradient); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .user-cell { display: flex; align-items: center; gap: 10px; }
+    .user-name { font-weight: 500; }
+    .user-email { font-size: 12px; color: var(--gray-500); }
+    .badge { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+    .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+    .badge-error { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+    .tags { display: flex; gap: 4px; }
+    .tag { padding: 2px 8px; background: rgba(255,124,60,0.1); color: var(--primary); border-radius: 4px; font-size: 12px; }
+    .progress { width: 60px; height: 6px; background: var(--gray-200); border-radius: 3px; }
+    .progress-bar { height: 100%; background: var(--primary-gradient); border-radius: 3px; }
+    .action-btn { width: 28px; height: 28px; border-radius: var(--radius); border: 1px solid var(--gray-200); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; }
+    .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .pagination { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-100); }
+    .page-btn { min-width: 32px; height: 32px; padding: 0 10px; border: 1px solid var(--gray-200); border-radius: var(--radius); background: white; font-size: 14px; cursor: pointer; }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .page-btn.active { background: var(--primary-gradient); color: white; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>用户管理</h1>
+        <button class="btn btn-primary">+ 新建用户</button>
+      </div>
+      <div class="filter">
+        <input type="text" class="input" placeholder="搜索用户..." style="width:200px;">
+        <select class="select"><option>全部状态</option><option>活跃</option><option>待审核</option></select>
+        <select class="select"><option>全部角色</option><option>管理员</option><option>编辑</option></select>
+        <button class="btn btn-default">重置</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>用户</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>技能</th>
+            <th>完成度</th>
+            <th>注册时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="user-cell"><div class="avatar">张</div><div><div class="user-name">张明</div><div class="user-email">zhangming@artfish.cn</div></div></div></td>
+            <td><span class="badge badge-warning">编辑</span></td>
+            <td><span class="badge badge-success">活跃</span></td>
+            <td><div class="tags"><span class="tag">React</span><span class="tag">Vue</span></div></td>
+            <td><div class="progress"><div class="progress-bar" style="width:85%"></div></div></td>
+            <td>2026-03-15</td>
+            <td><div style="display:flex;gap:4px"><button class="action-btn">✏️</button><button class="action-btn">👁</button><button class="action-btn">🗑</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="user-cell"><div class="avatar" style="background:#3b82f6">李</div><div><div class="user-name">李华</div><div class="user-email">lihua@artfish.cn</div></div></div></td>
+            <td><span class="badge badge-error">已禁用</span></td>
+            <td><span class="badge badge-error">禁用</span></td>
+            <td><div class="tags"><span class="tag">Python</span></div></td>
+            <td><div class="progress"><div class="progress-bar" style="width:30%"></div></div></td>
+            <td>2026-03-12</td>
+            <td><div style="display:flex;gap:4px"><button class="action-btn">✏️</button><button class="action-btn">👁</button><button class="action-btn">🗑</button></div></td>
+          </tr>
+          <tr>
+            <td><div class="user-cell"><div class="avatar" style="background:#22c55e">王</div><div><div class="user-name">王芳</div><div class="user-email">wangfang@artfish.cn</div></div></div></td>
+            <td><span class="badge badge-success">管理员</span></td>
+            <td><span class="badge badge-success">活跃</span></td>
+            <td><div class="tags"><span class="tag">Figma</span><span class="tag">Sketch</span></div></td>
+            <td><div class="progress"><div class="progress-bar" style="width:100%"></div></div></td>
+            <td>2026-03-10</td>
+            <td><div style="display:flex;gap:4px"><button class="action-btn">✏️</button><button class="action-btn">👁</button><button class="action-btn">🗑</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span style="color:var(--gray-500);font-size:14px;">显示 1-3 条，共 12 条</span>
+        <div style="display:flex;gap:4px;">
+          <button class="page-btn" disabled>上一页</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn">下一页</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
