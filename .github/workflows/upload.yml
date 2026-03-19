@@ -7,17 +7,13 @@ on:
 env:
   SUPABASE_URL: https://ipohnmmfgqpaosomfscn.supabase.co
   CF_PROJECT: artifish-demos
+  REPO: youmeiyouyu/artifish-demos
 
 jobs:
   upload-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate filename
+      - name: Generate filename and slug
         id: filename
         run: |
           TITLE="${{ github.event.client_payload.title }}"
@@ -27,19 +23,33 @@ jobs:
           echo "slug=$SLUG" >> $GITHUB_OUTPUT
           echo "title=$TITLE" >> $GITHUB_OUTPUT
 
-      - name: Save HTML file
-        run: |
-          echo '${{ github.event.client_payload.html }}' > "${{ steps.filename.outputs.filename }}"
-
-      - name: Commit and push
+      - name: Upload file via GitHub API
         env:
           PAT: ${{ secrets.PAT }}
         run: |
-          git config --local user.email "action@artfish.cn"
-          git config --local user.name "ArtFish Action"
-          git add .
-          git commit -m "feat: add ${{ steps.filename.outputs.filename }}"
-          git push https://x-access-token:$PAT@github.com/${{ github.repository }} HEAD:main
+          # Get current file SHA if exists
+          SHA=""
+          RESP=$(curl -s -H "Authorization: token $PAT" \
+            "https://api.github.com/repos/${{ env.REPO }}/contents/${{ steps.filename.outputs.filename }}")
+          if echo "$RESP" | grep -q '"sha"'; then
+            SHA=$(echo "$RESP" | grep -o '"sha":"[^"]*"' | head -1 | cut -d'"' -f4)
+          fi
+          
+          # Prepare JSON payload
+          CONTENT=$(echo '${{ github.event.client_payload.html }}' | base64 -w0)
+          
+          if [ -z "$SHA" ]; then
+            JSON="{\"message\":\"feat: add ${{ steps.filename.outputs.filename }}\",\"content\":\"$CONTENT\"}"
+          else
+            JSON="{\"message\":\"feat: add ${{ steps.filename.outputs.filename }}\",\"content\":\"$CONTENT\",\"sha\":\"$SHA\"}"
+          fi
+          
+          # Upload file
+          curl -s -X PUT \
+            -H "Authorization: token $PAT" \
+            -H "Content-Type: application/json" \
+            -d "$JSON" \
+            "https://api.github.com/repos/${{ env.REPO }}/contents/${{ steps.filename.outputs.filename }}"
 
       - name: Wait for Cloudflare deployment
         run: sleep 25
