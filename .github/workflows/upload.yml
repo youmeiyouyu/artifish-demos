@@ -33,20 +33,18 @@ jobs:
 
       - name: Commit and push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT: ${{ secrets.PAT }}
         run: |
           git config --local user.email "action@artfish.cn"
           git config --local user.name "ArtFish Action"
           git add .
           git commit -m "feat: add ${{ steps.filename.outputs.filename }}"
-          git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} HEAD:main
+          git push https://x-access-token:$PAT@github.com/${{ github.repository }} HEAD:main
 
       - name: Wait for Cloudflare deployment
         run: sleep 25
 
       - name: Create Supabase record
-        env:
-          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           curl -s -X POST "${{ env.SUPABASE_URL }}/rest/v1/works" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
