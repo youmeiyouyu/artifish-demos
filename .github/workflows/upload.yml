@@ -32,29 +32,24 @@ jobs:
         run: |
           echo '${{ github.event.client_payload.html }}' > "${{ steps.filename.outputs.filename }}"
 
-      - name: Commit file
+      - name: Configure git
         run: |
           git config --local user.email "action@artfish.cn"
           git config --local user.name "ArtFish Action"
+          git config --local credential.helper "store"
+          echo "https://${{ secrets.GITHUB_TOKEN }}:@github.com" > ~/.git-credentials
+
+      - name: Commit and push
+        run: |
           git add .
           git commit -m "feat: add ${{ steps.filename.outputs.filename }}"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          force: false
+          git push https://github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
 
       - name: Wait for Cloudflare deployment
-        run: |
-          echo "Waiting for Cloudflare Pages deployment..."
-          sleep 20
+        run: sleep 25
 
       - name: Create Supabase record
         run: |
-          SLUG="${{ steps.filename.outputs.slug }}"
-          PREVIEW_URL="https://${{ env.CF_PROJECT }}.pages.dev/${SLUG}-$(date +%s)"
-          
           curl -s -X POST "${{ env.SUPABASE_URL }}/rest/v1/works" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
@@ -69,5 +64,3 @@ jobs:
               \"author_name\": \"${{ github.event.client_payload.author_name }}\",
               \"image_url\": \"https://${{ env.CF_PROJECT }}.pages.dev/${{ steps.filename.outputs.filename }}\"
             }"
-          
-          echo "Work record created in Supabase!"
