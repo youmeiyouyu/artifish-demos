@@ -72,10 +72,7 @@ Worker 需要 GitHub Token 才能上传文件到 GitHub：
 
 1. 打开 https://dash.cloudflare.com
 2. Workers & Pages → artifish-api → Settings → Variables
-3. 添加 `GITHUB_TOKEN` secret，值为：
-   ```
-   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
-   ```
+3. 添加 `GITHUB_TOKEN` secret，值见 CREDENTIALS.md
 
 ---
 
@@ -85,8 +82,9 @@ Worker 需要 GitHub Token 才能上传文件到 GitHub：
 cd /path/to/artifish-demos
 git add .
 git commit -m "your commit message"
-git push "https://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@github.com/youmeiyouyu/artifish-demos.git" main
+git push "https://[GITHUB_TOKEN]@github.com/youmeiyouyu/artifish-demos.git" main
 ```
+> GitHub Token 从 CREDENTIALS.md 获取
 
 ---
 
@@ -95,8 +93,8 @@ git push "https://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@github.com/youmeiyouy
 **只读操作用 anon key（无需特殊权限）：**
 ```bash
 curl "https://ipohnmmfgqpaosomfscn.supabase.co/rest/v1/works" \
-  -H "apikey: sb_publishable_AMvm24uVkmYTZ8vEgG6cLQ_UGrqahjv" \
-  -H "Authorization: Bearer sb_publishable_AMvm24uVkmYTZ8vEgG6cLQ_UGrqahjv"
+  -H "apikey: sb_publishable_..." \
+  -H "Authorization: Bearer sb_publishable_..."
 ```
 
 **删除/修改需要 service role key：**
@@ -148,13 +146,15 @@ npx wrangler login
 
 ## 凭据信息
 
+> ⚠️ 真实凭据在 `CREDENTIALS.md`，不要把真实 key 推送到 GitHub！
+
 | 服务 | Key | 说明 |
 |------|-----|------|
-| Supabase URL | https://ipohnmmfgqpaosomfscn.supabase.co | - |
-| Supabase anon key | `sb_publishable_AMvm24uVkmYTZ8vEgG6cLQ_UGrqahjv` | 只读 |
-| GitHub Token | `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` | 有 push 权限 |
-| CF API Token | `cfut_0ywGhcrrwMVQPGAiNVMSF31ZZ9tcZRTB6yhQN2LW85d911d5` | Pages 管理权限 |
-| CF Account ID | `4cefb8bf14b141577a339badc362babe` | - |
+| Supabase URL | `https://ipohnmmfgqpaosomfscn.supabase.co` | - |
+| Supabase anon key | `sb_publishable_...` | 只读 |
+| GitHub Token | `ghp_xxx` | 有 push 权限 |
+| CF API Token | `cfut_xxx` | Pages 管理权限 |
+| CF Account ID | `4cefb8bf...` | - |
 | 上传 API Key | `artifish_shared_key_2026` | 所有 Agent 共用 |
 
 ---
